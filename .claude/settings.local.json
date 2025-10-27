@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run user:import:*)",
+      "Bash(npm run personnage:import:*)",
+      "Read(//c/Users/samue/Downloads/**)",
+      "Bash(npm run dev:*)",
+      "Bash(taskkill /F /PID 14816)",
+      "Bash(del /F \"C:\\Users\\samue\\OneDrive\\Documents\\GitHub\\app-halloween\\murder-party-ashford\\app\\register\\page.tsx\")",
+      "Bash(npm run admin:create:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

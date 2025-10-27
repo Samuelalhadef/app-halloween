@@ -1,0 +1,117 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+
+export default function ScorePage() {
+  const router = useRouter();
+
+  // Données de score fictives pour démonstration
+  const scores = [
+    { rank: 1, username: 'Margaret Walsh', points: 950, clues: 12, timeLeft: '45:30' },
+    { rank: 2, username: 'Albert Whitmore', points: 890, clues: 11, timeLeft: '40:15' },
+    { rank: 3, username: 'Thomas Ashford', points: 850, clues: 10, timeLeft: '38:20' },
+    { rank: 4, username: 'Catherine Ashford', points: 780, clues: 9, timeLeft: '35:10' },
+    { rank: 5, username: 'Oliver Blackwood', points: 720, clues: 8, timeLeft: '30:45' },
+  ];
+
+  return (
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#0a0e0d] via-[#1a2420] to-[#0f1512]">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.1) 1px, transparent 1px)`,
+          backgroundSize: '30px 30px'
+        }}></div>
+      </div>
+
+      {/* Ornamental Corners */}
+      <div className="absolute top-0 left-0 w-48 h-48 border-l-2 border-t-2 border-accent-gold/30 opacity-50"></div>
+      <div className="absolute top-0 right-0 w-48 h-48 border-r-2 border-t-2 border-accent-gold/30 opacity-50"></div>
+
+      <div className="relative z-10 min-h-screen px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="font-playfair text-5xl font-bold text-accent-gold mb-4 tracking-wide drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]">
+              CLASSEMENT
+            </h1>
+            <p className="font-inter text-text-muted text-sm tracking-widest">SCORES DES ENQUÊTEURS</p>
+          </div>
+
+          {/* Scores Table */}
+          <div className="bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-gold/40 rounded-lg p-8 shadow-[0_0_40px_rgba(212,175,55,0.2)] backdrop-blur-sm">
+
+            {/* Table Header */}
+            <div className="grid grid-cols-5 gap-4 pb-4 mb-6 border-b border-accent-gold/30">
+              <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide">RANG</div>
+              <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide col-span-2">ENQUÊTEUR</div>
+              <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide text-center">INDICES</div>
+              <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide text-right">POINTS</div>
+            </div>
+
+            {/* Table Rows */}
+            <div className="space-y-4">
+              {scores.map((score) => (
+                <div
+                  key={score.rank}
+                  className={`grid grid-cols-5 gap-4 p-4 rounded-lg transition-all duration-300 hover:bg-accent-gold/10 ${
+                    score.rank === 1 ? 'bg-accent-gold/20 border border-accent-gold/40' : 'border border-accent-gold/20'
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <span className={`font-playfair text-2xl font-bold ${
+                      score.rank === 1 ? 'text-[#FFD700]' :
+                      score.rank === 2 ? 'text-[#C0C0C0]' :
+                      score.rank === 3 ? 'text-[#CD7F32]' :
+                      'text-text-muted'
+                    }`}>
+                      {score.rank === 1 ? '🥇' : score.rank === 2 ? '🥈' : score.rank === 3 ? '🥉' : `#${score.rank}`}
+                    </span>
+                  </div>
+                  <div className="col-span-2 flex items-center">
+                    <span className="font-inter text-text-light font-medium">{score.username}</span>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <span className="font-inter text-accent-gold font-semibold">{score.clues}/12</span>
+                  </div>
+                  <div className="flex items-center justify-end">
+                    <span className="font-playfair text-2xl font-bold text-accent-gold">{score.points}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Legend */}
+            <div className="mt-8 pt-6 border-t border-accent-gold/30">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="font-inter text-xs text-text-muted mb-1">Points par indice</p>
+                  <p className="font-playfair text-accent-gold text-xl font-bold">+50</p>
+                </div>
+                <div>
+                  <p className="font-inter text-xs text-text-muted mb-1">Bonus temps</p>
+                  <p className="font-playfair text-accent-gold text-xl font-bold">+10/min</p>
+                </div>
+                <div>
+                  <p className="font-inter text-xs text-text-muted mb-1">Accusation correcte</p>
+                  <p className="font-playfair text-accent-gold text-xl font-bold">+500</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Back Button */}
+          <div className="text-center mt-12">
+            <button
+              onClick={() => router.push('/game')}
+              className="font-inter text-text-muted text-sm hover:text-accent-gold transition-colors flex items-center gap-2 mx-auto"
+            >
+              <span>←</span>
+              Retour au jeu
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

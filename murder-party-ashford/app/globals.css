@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+:root {
+  /* Couleurs Murder Party années 20 */
+  --primary-bg: #1a1a1a;
+  --primary-dark: #0a0a0a;
+  --secondary-bg: #2d2d2d;
+  --secondary-light: #3d3d3d;
+  --accent-gold: #d4af37;
+  --accent-burgundy: #800020;
+  --accent-crimson: #8b0000;
+  --text-light: #f5f5f5;
+  --text-gray: #b0b0b0;
+  --text-muted: #707070;
+}
+
+@theme inline {
+  --color-primary-bg: var(--primary-bg);
+  --color-primary-dark: var(--primary-dark);
+  --color-secondary-bg: var(--secondary-bg);
+  --color-secondary-light: var(--secondary-light);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-burgundy: var(--accent-burgundy);
+  --color-accent-crimson: var(--accent-crimson);
+  --color-text-light: var(--text-light);
+  --color-text-gray: var(--text-gray);
+  --color-text-muted: var(--text-muted);
+  --font-sans: var(--font-playfair);
+  --font-mono: var(--font-inter);
+}
+
+body {
+  background: var(--primary-bg);
+  color: var(--text-light);
+  font-family: 'Inter', sans-serif;
+}
