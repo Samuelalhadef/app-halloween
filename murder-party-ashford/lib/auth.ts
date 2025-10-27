@@ -7,7 +7,7 @@ export interface JWTPayload {
   userId: string;
   email: string;
   username: string;
-  role: 'player' | 'gamemaster';
+  role: 'player' | 'gamemaster' | 'admin';
 }
 
 // Générer un token JWT

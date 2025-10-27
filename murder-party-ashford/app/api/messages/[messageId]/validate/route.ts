@@ -6,7 +6,7 @@ import { getCurrentUser } from '@/lib/auth';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { messageId: string } }
+  { params }: { params: Promise<{ messageId: string }> }
 ) {
   try {
     // Vérifier l'authentification et le rôle admin
@@ -18,7 +18,7 @@ export async function POST(
       );
     }
 
-    const { messageId } = params;
+    const { messageId } = await params;
     const body = await request.json();
     const { points = 20 } = body; // 20 points par défaut
 

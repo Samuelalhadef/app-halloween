@@ -14,7 +14,6 @@ export const sampleCharacters = [
     alibi: 'Dans sa chambre, se préparant pour la soirée entre 20h30 et 21h15',
     relationships: [],
     isMurderer: false,
-    occupation: 'Aristocrate et propriétaire du manoir',
   },
   {
     name: 'Dr. Edmund Blackwood',
@@ -31,7 +30,6 @@ export const sampleCharacters = [
     alibi: 'Dans la bibliothèque, consultant des ouvrages médicaux',
     relationships: [],
     isMurderer: false,
-    occupation: 'Médecin',
   },
   {
     name: 'Margot Delacroix',
@@ -48,7 +46,6 @@ export const sampleCharacters = [
     alibi: 'Dans le salon de musique, répétant son rôle',
     relationships: [],
     isMurderer: true, // C'est elle l'assassin !
-    occupation: 'Actrice de théâtre',
   },
   {
     name: 'Colonel James Hartford',
@@ -65,7 +62,6 @@ export const sampleCharacters = [
     alibi: 'Dans le fumoir, jouant au billard avec d\'autres invités',
     relationships: [],
     isMurderer: false,
-    occupation: 'Colonel à la retraite',
   },
   {
     name: 'Isabella Romano',
@@ -82,7 +78,6 @@ export const sampleCharacters = [
     alibi: 'Dans la galerie d\'art, admirant les peintures',
     relationships: [],
     isMurderer: false,
-    occupation: 'Comtesse et collectionneuse',
   },
   {
     name: 'Thomas Pemberton',
@@ -99,7 +94,6 @@ export const sampleCharacters = [
     alibi: 'Dans le bureau, passant des appels téléphoniques',
     relationships: [],
     isMurderer: false,
-    occupation: 'Directeur de banque',
   },
   {
     name: 'Constance Whitmore',
@@ -116,7 +110,6 @@ export const sampleCharacters = [
     alibi: 'Supervisant le service en cuisine',
     relationships: [],
     isMurderer: false,
-    occupation: 'Gouvernante',
   },
   {
     name: 'Richard Ashford',
@@ -133,6 +126,5 @@ export const sampleCharacters = [
     alibi: 'Sur la terrasse, fumant un cigare et contemplant le parc',
     relationships: [],
     isMurderer: false,
-    occupation: 'Explorateur',
   },
 ];
