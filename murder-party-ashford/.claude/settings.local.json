@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(test:*)",
+      "Bash(rm:*)",
+      "Read(//c/Users/samue/OneDrive/Images/Screenshots/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

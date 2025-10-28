@@ -29,17 +29,30 @@ async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 10000, // Timeout de 10 secondes
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 10000,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    console.log('🔄 Tentative de connexion à MongoDB...');
+
+    cached.promise = mongoose.connect(MONGODB_URI, opts)
+      .then((mongoose) => {
+        console.log('✅ Connexion MongoDB/Mongoose réussie');
+        return mongoose;
+      })
+      .catch((error) => {
+        console.error('❌ Erreur de connexion MongoDB/Mongoose:', error.message);
+        console.error('Code d\'erreur:', error.code || 'N/A');
+        throw error;
+      });
   }
 
   try {
     cached.conn = await cached.promise;
-  } catch (e) {
+  } catch (e: any) {
     cached.promise = null;
+    console.error('❌ Échec de connexion à MongoDB:', e.message);
     throw e;
   }
 
