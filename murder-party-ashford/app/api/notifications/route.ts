@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongoose';
-import Notification from '@/models/Notification';
+import { notificationRepository } from '@/lib/db/notification';
 import { getCurrentUser } from '@/lib/auth';
 
 // GET - Récupérer les notifications actives
@@ -15,17 +14,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Connexion à la base de données
-    await connectDB();
-
     // Récupérer les notifications actives des 10 dernières secondes
     const tenSecondsAgo = new Date(Date.now() - 10000);
-    const notifications = await Notification.find({
+    const notifications = await notificationRepository.find({
       isActive: true,
       createdAt: { $gte: tenSecondsAgo },
-    })
-      .sort({ createdAt: -1 })
-      .lean();
+    });
 
     return NextResponse.json(
       { notifications },
@@ -70,14 +64,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Connexion à la base de données
-    await connectDB();
-
     // Créer la notification
-    const notification = await Notification.create({
+    const notification = await notificationRepository.create({
       message: message.trim(),
       type,
-      isActive: true,
     });
 
     return NextResponse.json(

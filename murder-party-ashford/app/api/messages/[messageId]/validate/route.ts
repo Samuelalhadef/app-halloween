@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongoose';
-import Message from '@/models/Message';
-import User from '@/models/User';
+import { messageRepository } from '@/lib/db/message';
+import { userRepository } from '@/lib/db/user';
 import { getCurrentUser } from '@/lib/auth';
 
 export async function POST(
@@ -22,11 +21,8 @@ export async function POST(
     const body = await request.json();
     const { points = 20 } = body; // 20 points par défaut
 
-    // Connexion à la base de données
-    await connectDB();
-
     // Trouver le message
-    const message = await Message.findById(messageId);
+    const message = await messageRepository.findById(messageId);
     if (!message) {
       return NextResponse.json(
         { error: 'Message introuvable' },
@@ -43,24 +39,29 @@ export async function POST(
     }
 
     // Mettre à jour le message
-    message.isValidated = true;
-    message.validatedBy = currentUser.username;
-    message.validatedAt = new Date();
-    message.pointsAwarded = points;
-    await message.save();
+    const validatedMessage = await messageRepository.validate(messageId, currentUser.username, points);
 
     // Attribuer les points à l'utilisateur
-    const user = await User.findById(message.userId);
+    const user = await userRepository.findById(message.userId);
     if (user) {
-      user.score = (user.score || 0) + points;
-      await user.save();
+      const newScore = (user.score || 0) + points;
+      await userRepository.updateScore(message.userId, newScore);
+
+      return NextResponse.json(
+        {
+          message: 'Indice validé avec succès',
+          validatedMessage,
+          newScore,
+        },
+        { status: 200 }
+      );
     }
 
     return NextResponse.json(
       {
         message: 'Indice validé avec succès',
-        validatedMessage: message,
-        newScore: user?.score || 0,
+        validatedMessage,
+        newScore: 0,
       },
       { status: 200 }
     );

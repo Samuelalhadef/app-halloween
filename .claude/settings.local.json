@@ -13,7 +13,15 @@
       "Bash(node -e:*)",
       "Bash(taskkill:*)",
       "Bash(npm run user:list:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(ipconfig:*)",
+      "Bash(powershell -Command \"Get-DnsClientServerAddress -AddressFamily IPv4 | Where-Object {$_ServerAddresses} | Select-Object InterfaceAlias, ServerAddresses\")",
+      "Bash(node test-mongo.js:*)",
+      "Bash(nslookup:*)",
+      "Bash(powershell -Command \"Get-NetAdapter | Where-Object {$_Status -eq ''Up''} | Select-Object -First 1 -ExpandProperty Name\")",
+      "Bash(node test-mongo-official.js:*)",
+      "Read(//c/Users/samue/OneDrive/Images/Screenshots/**)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []

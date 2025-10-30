@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongoose';
-import Message from '@/models/Message';
+import { messageRepository } from '@/lib/db/message';
 import { getCurrentUser } from '@/lib/auth';
 
 // GET - Récupérer les messages
@@ -15,14 +14,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Connexion à la base de données
-    await connectDB();
-
     // Récupérer les 100 derniers messages
-    const messages = await Message.find()
-      .sort({ createdAt: -1 })
-      .limit(100)
-      .lean();
+    const messages = await messageRepository.find({
+      limit: 100,
+      sort: { createdAt: -1 },
+    });
 
     // Inverser l'ordre pour avoir les plus anciens en premier
     messages.reverse();
@@ -70,11 +66,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Connexion à la base de données
-    await connectDB();
-
     // Créer le message
-    const message = await Message.create({
+    const message = await messageRepository.create({
       userId: user.userId,
       username: user.username,
       content: content.trim(),

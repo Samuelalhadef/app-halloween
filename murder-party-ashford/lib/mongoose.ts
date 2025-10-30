@@ -29,21 +29,31 @@ async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 10000, // Timeout de 10 secondes
-      connectTimeoutMS: 10000,
-      socketTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 30000, // Timeout de 30 secondes
+      connectTimeoutMS: 30000,
+      socketTimeoutMS: 30000,
+      maxPoolSize: 10,
+      minPoolSize: 1,
+      retryWrites: true,
+      retryReads: true,
     };
 
     console.log('🔄 Tentative de connexion à MongoDB...');
+    console.log('📍 URI:', MONGODB_URI.replace(/:[^:@]+@/, ':****@')); // Masque le mot de passe
 
     cached.promise = mongoose.connect(MONGODB_URI, opts)
       .then((mongoose) => {
         console.log('✅ Connexion MongoDB/Mongoose réussie');
+        console.log('📊 Base de données:', mongoose.connection.name);
         return mongoose;
       })
       .catch((error) => {
         console.error('❌ Erreur de connexion MongoDB/Mongoose:', error.message);
         console.error('Code d\'erreur:', error.code || 'N/A');
+        console.error('💡 Vérifiez:');
+        console.error('  1. Network Access dans MongoDB Atlas (IP whitelist)');
+        console.error('  2. Identifiants de connexion (username/password)');
+        console.error('  3. Nom du cluster et de la base de données');
         throw error;
       });
   }

@@ -12,9 +12,12 @@
     "user:delete": "tsx scripts/delete-user.ts",
     "user:import": "tsx scripts/import-all-users.ts",
     "personnage:import": "tsx scripts/import-personnages.ts",
-    "admin:create": "tsx scripts/create-admin.ts"
+    "admin:create": "tsx scripts/create-admin-turso.ts",
+    "turso:init": "tsx scripts/init-turso-schema.ts",
+    "turso:migrate": "tsx scripts/migrate-to-turso.ts"
   },
   "dependencies": {
+    "@libsql/client": "^0.15.15",
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.20.0",

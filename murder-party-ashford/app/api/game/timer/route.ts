@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongoose';
-import GameState from '@/models/GameState';
+import { gameStateRepository } from '@/lib/db/gamestate';
 import { getCurrentUser } from '@/lib/auth';
 
 // GET - Récupérer l'état du chronomètre
@@ -15,13 +14,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Connexion à la base de données
-    await connectDB();
-
     // Récupérer ou créer l'état du jeu
-    let gameState = await GameState.findOne();
+    let gameState = await gameStateRepository.findOne();
     if (!gameState) {
-      gameState = await GameState.create({
+      gameState = await gameStateRepository.create({
         isRunning: false,
         timeRemaining: 90 * 60, // 90 minutes
       });
@@ -29,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     // Si le chrono est en cours, calculer le temps restant
     if (gameState.isRunning && gameState.startTime) {
-      const elapsed = Math.floor((Date.now() - gameState.startTime.getTime()) / 1000);
+      const elapsed = Math.floor((Date.now() - new Date(gameState.startTime).getTime()) / 1000);
       const timeRemaining = Math.max(0, gameState.timeRemaining - elapsed);
 
       return NextResponse.json(
@@ -74,42 +70,41 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action } = body; // 'start', 'pause', 'reset'
 
-    // Connexion à la base de données
-    await connectDB();
-
     // Récupérer ou créer l'état du jeu
-    let gameState = await GameState.findOne();
+    let gameState = await gameStateRepository.findOne();
     if (!gameState) {
-      gameState = await GameState.create({
+      gameState = await gameStateRepository.create({
         isRunning: false,
         timeRemaining: 90 * 60,
       });
     }
 
+    const updates: any = {};
+
     switch (action) {
       case 'start':
         if (!gameState.isRunning) {
-          gameState.isRunning = true;
-          gameState.startTime = new Date();
-          gameState.pausedAt = undefined;
+          updates.isRunning = true;
+          updates.startTime = new Date().toISOString();
+          updates.pausedAt = undefined;
         }
         break;
 
       case 'pause':
         if (gameState.isRunning && gameState.startTime) {
-          const elapsed = Math.floor((Date.now() - gameState.startTime.getTime()) / 1000);
-          gameState.timeRemaining = Math.max(0, gameState.timeRemaining - elapsed);
-          gameState.isRunning = false;
-          gameState.pausedAt = new Date();
-          gameState.startTime = undefined;
+          const elapsed = Math.floor((Date.now() - new Date(gameState.startTime).getTime()) / 1000);
+          updates.timeRemaining = Math.max(0, gameState.timeRemaining - elapsed);
+          updates.isRunning = false;
+          updates.pausedAt = new Date().toISOString();
+          updates.startTime = undefined;
         }
         break;
 
       case 'reset':
-        gameState.isRunning = false;
-        gameState.timeRemaining = 90 * 60;
-        gameState.startTime = undefined;
-        gameState.pausedAt = undefined;
+        updates.isRunning = false;
+        updates.timeRemaining = 90 * 60;
+        updates.startTime = undefined;
+        updates.pausedAt = undefined;
         break;
 
       default:
@@ -119,7 +114,7 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    await gameState.save();
+    gameState = await gameStateRepository.update(gameState.id, updates);
 
     return NextResponse.json(
       {

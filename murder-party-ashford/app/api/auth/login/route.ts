@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongoose';
-import User from '@/models/User';
+import { userRepository } from '@/lib/db/user';
 import { generateToken, setAuthCookie } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
@@ -17,16 +16,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Connexion à la base de données
-    await connectDB();
-
     // Chercher l'utilisateur par email OU username
-    const user = await User.findOne({
-      $or: [
-        { email: identifier.toLowerCase() },
-        { username: identifier }
-      ]
-    }).select('+password'); // Inclure le mot de passe (normalement exclu)
+    const user = await userRepository.findOneByIdentifier(identifier, true);
 
     if (!user) {
       return NextResponse.json(
@@ -47,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // Générer un token JWT
     const token = generateToken({
-      userId: user._id.toString(),
+      userId: user.id,
       email: user.email,
       username: user.username,
       role: user.role,
@@ -61,7 +52,7 @@ export async function POST(request: NextRequest) {
       {
         message: 'Connexion réussie',
         user: {
-          id: user._id,
+          id: user.id,
           email: user.email,
           username: user.username,
           role: user.role,
