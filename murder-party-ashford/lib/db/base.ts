@@ -1,4 +1,11 @@
 import { createClient, Client, ResultSet } from '@libsql/client';
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// Charger .env.local si on est en mode script (pas dans Next.js)
+if (typeof window === 'undefined' && !process.env.NEXT_RUNTIME) {
+  config({ path: resolve(process.cwd(), '.env.local') });
+}
 
 let tursoClient: Client | null = null;
 

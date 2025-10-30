@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import GlobalNotifications from '@/components/GlobalNotifications';
+import BackgroundMusic from '@/components/BackgroundMusic';
 
 export default function GamePage() {
   const router = useRouter();
@@ -55,6 +56,7 @@ export default function GamePage() {
   return (
     <>
       <GlobalNotifications />
+      <BackgroundMusic />
       <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#0a0e0d] via-[#1a2420] to-[#0f1512]">
         {/* Background Gothic Pattern */}
       <div className="absolute inset-0 opacity-10">

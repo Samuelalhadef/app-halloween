@@ -131,20 +131,38 @@ export default function ScorePage() {
 
             {/* Legend */}
             <div className="mt-8 pt-6 border-t border-accent-gold/30">
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <h3 className="font-playfair text-lg font-bold text-accent-gold mb-4 text-center">
+                Système de Points
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-center">
                 <div>
-                  <p className="font-inter text-xs text-text-muted mb-1">Points par indice</p>
-                  <p className="font-playfair text-accent-gold text-xl font-bold">+50</p>
+                  <p className="font-inter text-xs text-text-muted mb-1">Indice validé</p>
+                  <p className="font-playfair text-accent-gold text-lg font-bold">+5</p>
                 </div>
                 <div>
-                  <p className="font-inter text-xs text-text-muted mb-1">Bonus temps</p>
-                  <p className="font-playfair text-accent-gold text-xl font-bold">+10/min</p>
+                  <p className="font-inter text-xs text-text-muted mb-1">Meurtrier correct</p>
+                  <p className="font-playfair text-accent-gold text-lg font-bold">+100</p>
                 </div>
                 <div>
-                  <p className="font-inter text-xs text-text-muted mb-1">Accusation correcte</p>
-                  <p className="font-playfair text-accent-gold text-xl font-bold">+500</p>
+                  <p className="font-inter text-xs text-text-muted mb-1">Complice correct</p>
+                  <p className="font-playfair text-accent-gold text-lg font-bold">+30</p>
+                </div>
+                <div>
+                  <p className="font-inter text-xs text-text-muted mb-1">Mobile correct</p>
+                  <p className="font-playfair text-accent-gold text-lg font-bold">+65</p>
+                </div>
+                <div>
+                  <p className="font-inter text-xs text-text-muted mb-1">Cause de mort</p>
+                  <p className="font-playfair text-accent-gold text-lg font-bold">+50</p>
+                </div>
+                <div>
+                  <p className="font-inter text-xs text-text-muted mb-1">Arme/méthode</p>
+                  <p className="font-playfair text-accent-gold text-lg font-bold">+30</p>
                 </div>
               </div>
+              <p className="font-inter text-xs text-text-muted text-center mt-4">
+                Maximum possible : 275 points pour l&apos;accusation finale + points d&apos;indices
+              </p>
             </div>
           </div>
 

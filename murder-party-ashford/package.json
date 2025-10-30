@@ -12,6 +12,7 @@
     "user:delete": "tsx scripts/delete-user.ts",
     "user:import": "tsx scripts/import-all-users.ts",
     "personnage:import": "tsx scripts/import-personnages.ts",
+    "characters:import": "tsx scripts/import-all-characters.ts",
     "admin:create": "tsx scripts/create-admin-turso.ts",
     "turso:init": "tsx scripts/init-turso-schema.ts",
     "turso:migrate": "tsx scripts/migrate-to-turso.ts"

@@ -15,9 +15,15 @@ export interface User {
     confidence: number;
   }>;
   finalAccusation?: {
-    characterId: string;
-    reasoning: string;
-    submittedAt: string;
+    murderer: string;           // ID du meurtrier
+    accomplices: string[];      // IDs des complices
+    motive: string;             // Mobile du crime
+    causeOfDeath: string;       // Cause de la mort
+    weapon: string;             // Arme/méthode utilisée
+    reasoning: string;          // Raisonnement du joueur
+    submittedAt: string;        // Date de soumission
+    pointsAwarded?: number;     // Points obtenus (calculés après validation)
+    isValidated?: boolean;      // Si l'admin a validé
   };
   createdAt: string;
   updatedAt: string;
@@ -102,6 +108,87 @@ export class UserRepository {
       });
     } catch (error) {
       console.error('Error updating user score:', error);
+      throw error;
+    }
+  }
+
+  async submitFinalAccusation(userId: string, accusation: {
+    murderer: string;
+    accomplices: string[];
+    motive: string;
+    causeOfDeath: string;
+    weapon: string;
+    reasoning: string;
+  }): Promise<User> {
+    try {
+      const now = new Date().toISOString();
+      const finalAccusation = {
+        ...accusation,
+        submittedAt: now,
+        isValidated: false,
+        pointsAwarded: 0,
+      };
+
+      await this.client.execute({
+        sql: 'UPDATE users SET finalAccusation = ?, updatedAt = ? WHERE id = ?',
+        args: [JSON.stringify(finalAccusation), now, userId],
+      });
+
+      const user = await this.findById(userId);
+      if (!user) {
+        throw new Error('Failed to submit final accusation');
+      }
+
+      return user;
+    } catch (error) {
+      console.error('Error submitting final accusation:', error);
+      throw error;
+    }
+  }
+
+  async validateFinalAccusation(userId: string, pointsAwarded: number): Promise<User> {
+    try {
+      const user = await this.findById(userId);
+      if (!user || !user.finalAccusation) {
+        throw new Error('User or accusation not found');
+      }
+
+      const updatedAccusation = {
+        ...user.finalAccusation,
+        isValidated: true,
+        pointsAwarded,
+      };
+
+      const newScore = (user.score || 0) + pointsAwarded;
+      const now = new Date().toISOString();
+
+      await this.client.execute({
+        sql: 'UPDATE users SET finalAccusation = ?, score = ?, updatedAt = ? WHERE id = ?',
+        args: [JSON.stringify(updatedAccusation), newScore, now, userId],
+      });
+
+      const updatedUser = await this.findById(userId);
+      if (!updatedUser) {
+        throw new Error('Failed to validate final accusation');
+      }
+
+      return updatedUser;
+    } catch (error) {
+      console.error('Error validating final accusation:', error);
+      throw error;
+    }
+  }
+
+  async findUsersWithAccusations(): Promise<User[]> {
+    try {
+      const sql = 'SELECT * FROM users WHERE role = ? AND finalAccusation IS NOT NULL ORDER BY username ASC';
+      const args = ['player'];
+
+      const result = await this.client.execute({ sql, args });
+
+      return result.rows.map(row => this.rowToUser(row));
+    } catch (error) {
+      console.error('Error finding users with accusations:', error);
       throw error;
     }
   }

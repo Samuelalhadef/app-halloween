@@ -19,7 +19,7 @@ export async function POST(
 
     const { messageId } = await params;
     const body = await request.json();
-    const { points = 20 } = body; // 20 points par défaut
+    const { points = 5 } = body; // 5 points par défaut
 
     // Trouver le message
     const message = await messageRepository.findById(messageId);

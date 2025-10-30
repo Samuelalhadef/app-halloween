@@ -175,7 +175,7 @@ export default function Chat() {
                   onClick={() => handleValidateMessage(message.id)}
                   className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-inter font-semibold transition-colors"
                 >
-                  Valider (+20 points)
+                  Valider (+5 points)
                 </button>
               )}
             </div>

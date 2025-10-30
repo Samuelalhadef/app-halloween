@@ -270,6 +270,18 @@ export default function AdminPage() {
                 💬 Discussion (valider indices)
               </button>
               <button
+                onClick={() => router.push('/admin/accusations')}
+                className="bg-accent-burgundy hover:bg-accent-crimson text-text-light px-6 py-3 rounded-lg font-inter font-semibold transition-colors"
+              >
+                ⚖️ Valider accusations finales
+              </button>
+              <button
+                onClick={() => router.push('/score')}
+                className="bg-accent-burgundy hover:bg-accent-crimson text-text-light px-6 py-3 rounded-lg font-inter font-semibold transition-colors"
+              >
+                🏆 Classement
+              </button>
+              <button
                 onClick={() => router.push('/game')}
                 className="bg-accent-burgundy hover:bg-accent-crimson text-text-light px-6 py-3 rounded-lg font-inter font-semibold transition-colors"
               >
