@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 interface Message {
-  _id: string;
+  id: string;
   userId: string;
   username: string;
   content: string;
@@ -147,7 +147,7 @@ export default function Chat() {
         ) : (
           messages.map((message) => (
             <div
-              key={message._id}
+              key={message.id}
               className={`bg-primary-bg/50 border rounded-lg p-4 hover:border-accent-gold/40 transition-colors ${
                 message.isValidated ? 'border-green-500/50' : 'border-accent-gold/20'
               }`}
@@ -172,7 +172,7 @@ export default function Chat() {
               </p>
               {currentUser?.role === 'admin' && !message.isValidated && (
                 <button
-                  onClick={() => handleValidateMessage(message._id)}
+                  onClick={() => handleValidateMessage(message.id)}
                   className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-inter font-semibold transition-colors"
                 >
                   Valider (+20 points)

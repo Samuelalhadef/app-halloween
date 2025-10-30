@@ -80,6 +80,20 @@ export class UserRepository {
     return this.findOne({ id });
   }
 
+  async findAllSortedByScore(): Promise<User[]> {
+    try {
+      const sql = 'SELECT * FROM users WHERE role = ? ORDER BY score DESC, username ASC';
+      const args = ['player'];
+
+      const result = await this.client.execute({ sql, args });
+
+      return result.rows.map(row => this.rowToUser(row));
+    } catch (error) {
+      console.error('Error finding users sorted by score:', error);
+      throw error;
+    }
+  }
+
   async updateScore(userId: string, newScore: number): Promise<void> {
     try {
       await this.client.execute({

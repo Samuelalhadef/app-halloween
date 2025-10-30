@@ -1,18 +1,41 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+interface Ranking {
+  rank: number;
+  id: string;
+  username: string;
+  score: number;
+  cluesFound: number;
+}
 
 export default function ScorePage() {
   const router = useRouter();
+  const [rankings, setRankings] = useState<Ranking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Données de score fictives pour démonstration
-  const scores = [
-    { rank: 1, username: 'Margaret Walsh', points: 950, clues: 12, timeLeft: '45:30' },
-    { rank: 2, username: 'Albert Whitmore', points: 890, clues: 11, timeLeft: '40:15' },
-    { rank: 3, username: 'Thomas Ashford', points: 850, clues: 10, timeLeft: '38:20' },
-    { rank: 4, username: 'Catherine Ashford', points: 780, clues: 9, timeLeft: '35:10' },
-    { rank: 5, username: 'Oliver Blackwood', points: 720, clues: 8, timeLeft: '30:45' },
-  ];
+  useEffect(() => {
+    const fetchRankings = async () => {
+      try {
+        const response = await fetch('/api/score');
+        if (!response.ok) {
+          throw new Error('Failed to fetch rankings');
+        }
+        const data = await response.json();
+        setRankings(data.rankings);
+      } catch (err) {
+        console.error('Error fetching rankings:', err);
+        setError('Impossible de charger les classements');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRankings();
+  }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#0a0e0d] via-[#1a2420] to-[#0f1512]">
@@ -41,45 +64,70 @@ export default function ScorePage() {
           {/* Scores Table */}
           <div className="bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-gold/40 rounded-lg p-8 shadow-[0_0_40px_rgba(212,175,55,0.2)] backdrop-blur-sm">
 
-            {/* Table Header */}
-            <div className="grid grid-cols-5 gap-4 pb-4 mb-6 border-b border-accent-gold/30">
-              <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide">RANG</div>
-              <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide col-span-2">ENQUÊTEUR</div>
-              <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide text-center">INDICES</div>
-              <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide text-right">POINTS</div>
-            </div>
+            {/* Loading State */}
+            {loading && (
+              <div className="text-center py-12">
+                <p className="font-inter text-accent-gold text-lg">Chargement des classements...</p>
+              </div>
+            )}
 
-            {/* Table Rows */}
-            <div className="space-y-4">
-              {scores.map((score) => (
-                <div
-                  key={score.rank}
-                  className={`grid grid-cols-5 gap-4 p-4 rounded-lg transition-all duration-300 hover:bg-accent-gold/10 ${
-                    score.rank === 1 ? 'bg-accent-gold/20 border border-accent-gold/40' : 'border border-accent-gold/20'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <span className={`font-playfair text-2xl font-bold ${
-                      score.rank === 1 ? 'text-[#FFD700]' :
-                      score.rank === 2 ? 'text-[#C0C0C0]' :
-                      score.rank === 3 ? 'text-[#CD7F32]' :
-                      'text-text-muted'
-                    }`}>
-                      {score.rank === 1 ? '🥇' : score.rank === 2 ? '🥈' : score.rank === 3 ? '🥉' : `#${score.rank}`}
-                    </span>
-                  </div>
-                  <div className="col-span-2 flex items-center">
-                    <span className="font-inter text-text-light font-medium">{score.username}</span>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <span className="font-inter text-accent-gold font-semibold">{score.clues}/12</span>
-                  </div>
-                  <div className="flex items-center justify-end">
-                    <span className="font-playfair text-2xl font-bold text-accent-gold">{score.points}</span>
-                  </div>
+            {/* Error State */}
+            {error && (
+              <div className="text-center py-12">
+                <p className="font-inter text-red-400 text-lg">{error}</p>
+              </div>
+            )}
+
+            {/* Content State */}
+            {!loading && !error && (
+              <>
+                {/* Table Header */}
+                <div className="grid grid-cols-5 gap-4 pb-4 mb-6 border-b border-accent-gold/30">
+                  <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide">RANG</div>
+                  <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide col-span-2">ENQUÊTEUR</div>
+                  <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide text-center">INDICES</div>
+                  <div className="font-playfair text-accent-gold text-sm font-semibold tracking-wide text-right">POINTS</div>
                 </div>
-              ))}
-            </div>
+
+                {/* Table Rows */}
+                {rankings.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="font-inter text-text-muted text-lg">Aucun joueur n&apos;a encore de score</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {rankings.map((ranking) => (
+                      <div
+                        key={ranking.id}
+                        className={`grid grid-cols-5 gap-4 p-4 rounded-lg transition-all duration-300 hover:bg-accent-gold/10 ${
+                          ranking.rank === 1 ? 'bg-accent-gold/20 border border-accent-gold/40' : 'border border-accent-gold/20'
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          <span className={`font-playfair text-2xl font-bold ${
+                            ranking.rank === 1 ? 'text-[#FFD700]' :
+                            ranking.rank === 2 ? 'text-[#C0C0C0]' :
+                            ranking.rank === 3 ? 'text-[#CD7F32]' :
+                            'text-text-muted'
+                          }`}>
+                            {ranking.rank === 1 ? '🥇' : ranking.rank === 2 ? '🥈' : ranking.rank === 3 ? '🥉' : `#${ranking.rank}`}
+                          </span>
+                        </div>
+                        <div className="col-span-2 flex items-center">
+                          <span className="font-inter text-text-light font-medium">{ranking.username}</span>
+                        </div>
+                        <div className="flex items-center justify-center">
+                          <span className="font-inter text-accent-gold font-semibold">{ranking.cluesFound}</span>
+                        </div>
+                        <div className="flex items-center justify-end">
+                          <span className="font-playfair text-2xl font-bold text-accent-gold">{ranking.score}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
 
             {/* Legend */}
             <div className="mt-8 pt-6 border-t border-accent-gold/30">
