@@ -38,7 +38,7 @@ export class GameStateRepository {
         args: [
           id,
           data?.isRunning ? 1 : 0,
-          data?.timeRemaining || 5400, // 90 minutes
+          data?.timeRemaining || 4500, // 75 minutes
           null,
           null,
           now,

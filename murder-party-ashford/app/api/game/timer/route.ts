@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     if (!gameState) {
       gameState = await gameStateRepository.create({
         isRunning: false,
-        timeRemaining: 90 * 60, // 90 minutes
+        timeRemaining: 75 * 60, // 75 minutes
       });
     }
 
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     if (!gameState) {
       gameState = await gameStateRepository.create({
         isRunning: false,
-        timeRemaining: 90 * 60,
+        timeRemaining: 75 * 60,
       });
     }
 
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
 
       case 'reset':
         updates.isRunning = false;
-        updates.timeRemaining = 90 * 60;
+        updates.timeRemaining = 75 * 60;
         updates.startTime = undefined;
         updates.pausedAt = undefined;
         break;

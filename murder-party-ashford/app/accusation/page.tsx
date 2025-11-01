@@ -2,6 +2,29 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { allCharacters } from '@/data/all-characters';
+
+// Fonction pour attribuer un emoji basé sur l'occupation/catégorie
+const getEmoji = (occupation: string, category: string): string => {
+  const lowerOccupation = occupation.toLowerCase();
+  const lowerCategory = category.toLowerCase();
+
+  if (lowerOccupation.includes('cuisin')) return '👩‍🍳';
+  if (lowerOccupation.includes('majordome')) return '🤵';
+  if (lowerOccupation.includes('médecin')) return '⚕️';
+  if (lowerOccupation.includes('apothicaire')) return '⚗️';
+  if (lowerOccupation.includes('jardinier')) return '🌿';
+  if (lowerOccupation.includes('gouvernante')) return '👩‍💼';
+  if (lowerOccupation.includes('femme de chambre')) return '🧹';
+  if (lowerOccupation.includes('valet')) return '🎩';
+  if (lowerOccupation.includes('serveur')) return '🍷';
+  if (lowerOccupation.includes('avocat')) return '⚖️';
+  if (lowerOccupation.includes('écrivaine')) return '📝';
+  if (lowerCategory.includes('ashford')) return '🏰';
+  if (lowerCategory.includes('pemberton')) return '💼';
+  if (lowerOccupation.includes('aristocrate')) return '👑';
+  return '👤';
+};
 
 export default function AccusationPage() {
   const router = useRouter();
@@ -17,17 +40,17 @@ export default function AccusationPage() {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [searchMurderer, setSearchMurderer] = useState('');
   const [searchAccomplice, setSearchAccomplice] = useState('');
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [canAccess, setCanAccess] = useState(false);
 
-  const suspects = [
-    { id: 'margaret', name: 'Margaret Walsh', role: 'Cuisinière', emoji: '👩‍🍳' },
-    { id: 'albert', name: 'Albert Whitmore', role: 'Majordome', emoji: '🤵' },
-    { id: 'thomas', name: 'Thomas Ashford', role: 'Fils', emoji: '👨‍💼' },
-    { id: 'catherine', name: 'Catherine Ashford', role: 'Épouse', emoji: '👩' },
-    { id: 'sebastian', name: 'Sebastian Ashford', role: 'Fils', emoji: '🎩' },
-    { id: 'helena', name: 'Helena Ashford', role: 'Sœur', emoji: '👩‍🦰' },
-    { id: 'reginald', name: 'Lord Reginald', role: 'Rival', emoji: '🧐' },
-    { id: 'silas', name: 'Silas Thorne', role: 'Apothicaire', emoji: '⚗️' },
-  ];
+  // Convertir allCharacters en format suspects avec emojis
+  const suspects = allCharacters.map(character => ({
+    id: `${character.firstName.toLowerCase()}-${character.lastName.toLowerCase()}`,
+    name: character.name,
+    role: character.title,
+    emoji: getEmoji(character.occupation, character.category),
+    category: character.category
+  }));
 
   const motives = [
     { id: 'heritage', name: 'Héritage', emoji: '💰' },
@@ -47,6 +70,7 @@ export default function AccusationPage() {
   ];
 
   const weapons = [
+    { id: 'digitoxine', name: 'Digitoxine', emoji: '💊' },
     { id: 'arsenic', name: 'Arsenic', emoji: '⚗️' },
     { id: 'corde', name: 'Corde', emoji: '🪢' },
     { id: 'couteau', name: 'Couteau', emoji: '🔪' },
@@ -55,6 +79,27 @@ export default function AccusationPage() {
     { id: 'revolver', name: 'Revolver', emoji: '🔫' },
     { id: 'graisse', name: 'Graisse sur l\'escalier', emoji: '🧴' },
   ];
+
+  // Vérifier le temps restant
+  useEffect(() => {
+    const checkTimer = async () => {
+      try {
+        const response = await fetch('/api/game/timer');
+        if (response.ok) {
+          const data = await response.json();
+          setTimeRemaining(data.timeRemaining);
+          // Autoriser l'accès seulement si le temps restant est <= 15 minutes (900 secondes)
+          setCanAccess(data.timeRemaining <= 900);
+        }
+      } catch (err) {
+        console.error('Erreur lors de la vérification du chronomètre:', err);
+      }
+    };
+
+    checkTimer();
+    const interval = setInterval(checkTimer, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     // Vérifier si l'utilisateur a déjà soumis une accusation
@@ -86,14 +131,16 @@ export default function AccusationPage() {
   // Filtrer les suspects pour le meurtrier
   const filteredMurdererSuspects = suspects.filter(s =>
     s.name.toLowerCase().includes(searchMurderer.toLowerCase()) ||
-    s.role.toLowerCase().includes(searchMurderer.toLowerCase())
+    s.role.toLowerCase().includes(searchMurderer.toLowerCase()) ||
+    s.category.toLowerCase().includes(searchMurderer.toLowerCase())
   );
 
   // Filtrer les suspects pour les complices
   const filteredAccompliceSuspects = suspects.filter(s =>
     s.id !== murderer &&
     (s.name.toLowerCase().includes(searchAccomplice.toLowerCase()) ||
-    s.role.toLowerCase().includes(searchAccomplice.toLowerCase()))
+    s.role.toLowerCase().includes(searchAccomplice.toLowerCase()) ||
+    s.category.toLowerCase().includes(searchAccomplice.toLowerCase()))
   );
 
   const handleSubmit = () => {
@@ -161,6 +208,32 @@ export default function AccusationPage() {
       setLoading(false);
     }
   };
+
+  // Bloquer l'accès si trop tôt
+  if (timeRemaining !== null && !canAccess && !hasSubmitted) {
+    const minutesRemaining = Math.floor(timeRemaining / 60);
+    const secondsRemaining = timeRemaining % 60;
+
+    return (
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#0a0e0d] via-[#1a2420] to-[#0f1512] flex items-center justify-center">
+        <div className="bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-crimson/40 rounded-lg p-8 max-w-md mx-4 text-center">
+          <h2 className="font-playfair text-3xl font-bold text-accent-crimson mb-4">Trop tôt !</h2>
+          <p className="font-inter text-text-light mb-4">
+            L&apos;accusation finale ne sera disponible que 15 minutes avant la fin du jeu.
+          </p>
+          <div className="mb-6 text-accent-gold text-2xl font-bold">
+            Temps restant : {minutesRemaining.toString().padStart(2, '0')}:{secondsRemaining.toString().padStart(2, '0')}
+          </div>
+          <button
+            onClick={() => router.push('/game')}
+            className="font-inter text-text-muted hover:text-accent-gold transition-colors"
+          >
+            ← Retour au jeu
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (hasSubmitted) {
     return (
@@ -234,25 +307,26 @@ export default function AccusationPage() {
                 className="w-full bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-gold/40 rounded-lg px-4 py-3 text-text-light font-inter text-sm focus:border-accent-gold/60 focus:outline-none"
               />
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
               {filteredMurdererSuspects.map((suspect) => (
                 <button
                   key={suspect.id}
                   onClick={() => setMurderer(suspect.id)}
-                  className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
+                  className={`p-3 rounded-lg border-2 transition-all duration-300 text-left ${
                     murderer === suspect.id
                       ? 'bg-accent-crimson/20 border-accent-crimson/60 shadow-[0_0_30px_rgba(153,27,27,0.4)]'
                       : 'bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-accent-gold/40 hover:border-accent-gold/60'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">{suspect.emoji}</span>
-                    <div>
-                      <h3 className="font-playfair text-lg font-bold text-text-light">{suspect.name}</h3>
-                      <p className="font-inter text-xs text-text-muted">{suspect.role}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{suspect.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-playfair text-sm font-bold text-text-light truncate">{suspect.name}</h3>
+                      <p className="font-inter text-xs text-text-muted truncate">{suspect.role}</p>
+                      <p className="font-inter text-xs text-accent-gold/60">{suspect.category}</p>
                     </div>
                     {murderer === suspect.id && (
-                      <span className="ml-auto text-accent-crimson text-2xl">✓</span>
+                      <span className="text-accent-crimson text-xl flex-shrink-0">✓</span>
                     )}
                   </div>
                 </button>
@@ -277,25 +351,26 @@ export default function AccusationPage() {
                 className="w-full bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-gold/40 rounded-lg px-4 py-3 text-text-light font-inter text-sm focus:border-accent-gold/60 focus:outline-none"
               />
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
               {filteredAccompliceSuspects.map((suspect) => (
                 <button
                   key={suspect.id}
                   onClick={() => toggleAccomplice(suspect.id)}
-                  className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
+                  className={`p-3 rounded-lg border-2 transition-all duration-300 text-left ${
                     accomplices.includes(suspect.id)
                       ? 'bg-accent-gold/10 border-accent-gold/60'
                       : 'bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-accent-gold/20 hover:border-accent-gold/40'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <span className="text-2xl">{suspect.emoji}</span>
-                    <div>
-                      <h3 className="font-playfair text-base font-bold text-text-light">{suspect.name}</h3>
-                      <p className="font-inter text-xs text-text-muted">{suspect.role}</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-playfair text-sm font-bold text-text-light truncate">{suspect.name}</h3>
+                      <p className="font-inter text-xs text-text-muted truncate">{suspect.role}</p>
+                      <p className="font-inter text-xs text-accent-gold/60">{suspect.category}</p>
                     </div>
                     {accomplices.includes(suspect.id) && (
-                      <span className="ml-auto text-accent-gold text-xl">✓</span>
+                      <span className="text-accent-gold text-xl flex-shrink-0">✓</span>
                     )}
                   </div>
                 </button>

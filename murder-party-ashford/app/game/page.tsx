@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import GlobalNotifications from '@/components/GlobalNotifications';
-import BackgroundMusic from '@/components/BackgroundMusic';
 
 export default function GamePage() {
   const router = useRouter();
-  const [time, setTime] = useState(90 * 60); // 90 minutes en secondes
+  const [time, setTime] = useState(75 * 60); // 75 minutes en secondes
   const [isRunning, setIsRunning] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
@@ -56,7 +55,6 @@ export default function GamePage() {
   return (
     <>
       <GlobalNotifications />
-      <BackgroundMusic />
       <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#0a0e0d] via-[#1a2420] to-[#0f1512]">
         {/* Background Gothic Pattern */}
       <div className="absolute inset-0 opacity-10">
@@ -190,14 +188,6 @@ export default function GamePage() {
           </button>
         )}
 
-        {/* Back to Dashboard */}
-        <button
-          onClick={() => router.push('/dashboard')}
-          className="mt-6 font-inter text-text-muted text-sm hover:text-accent-gold transition-colors flex items-center gap-2"
-        >
-          <span>←</span>
-          Retour au tableau de bord
-        </button>
       </div>
     </div>
     </>

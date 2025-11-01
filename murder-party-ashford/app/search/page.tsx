@@ -1,7 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { allCharacters } from "@/data/all-characters";
+import RelationshipTree from "@/components/RelationshipTree";
 
 interface Article {
   id: string;
@@ -12,19 +14,49 @@ interface Article {
   discoveredAt?: string;
 }
 
+interface Character {
+  firstName: string;
+  lastName: string;
+  name: string;
+  title: string;
+  age: number;
+  occupation: string;
+  description: string;
+  category: string;
+}
+
+type SearchResult = {
+  type: "article" | "character";
+  data: Article | Character;
+};
+
 export default function SearchPage() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Article[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [activeTab, setActiveTab] = useState<"search" | "relationships">(
+    "search"
+  );
 
   // Base de données d'articles
   const articles: Article[] = [
     {
-      id: 'digitoxine',
-      title: 'Digitoxine - Poison Cardiaque',
-      category: 'Toxicologie',
-      relatedTerms: ['digitoxine', 'poison', 'cardiaque', 'digitaline', 'digitale', 'foxglove', 'médicament', 'cœur', 'fiole', 'flacon'],
+      id: "digitoxine",
+      title: "Digitoxine - Poison Cardiaque",
+      category: "Toxicologie",
+      relatedTerms: [
+        "digitoxine",
+        "poison",
+        "cardiaque",
+        "digitaline",
+        "digitale",
+        "foxglove",
+        "médicament",
+        "cœur",
+        "fiole",
+        "flacon",
+      ],
       content: `
 # Digitoxine (C41H64O13)
 
@@ -114,13 +146,21 @@ La digitoxine augmente la force de contraction du muscle cardiaque en inhibant l
 3. Y a-t-il des plants de digitale dans le jardin du manoir ?
 4. Le médecin de famille prescrivait-il ce médicament ?
       `,
-      discoveredAt: 'Bibliothèque - Traité de toxicologie'
+      discoveredAt: "Bibliothèque - Traité de toxicologie",
     },
     {
-      id: 'poison-general',
-      title: 'Poisons Courants en 1925',
-      category: 'Toxicologie',
-      relatedTerms: ['poison', 'toxique', 'venin', 'arsenic', 'cyanure', 'strychnine', 'empoisonnement'],
+      id: "poison-general",
+      title: "Poisons Courants en 1925",
+      category: "Toxicologie",
+      relatedTerms: [
+        "poison",
+        "toxique",
+        "venin",
+        "arsenic",
+        "cyanure",
+        "strychnine",
+        "empoisonnement",
+      ],
       content: `
 # Poisons Courants dans l'Angleterre de 1925
 
@@ -154,13 +194,21 @@ La digitoxine augmente la force de contraction du muscle cardiaque en inhibant l
 ## Détection en 1925
 Les méthodes médico-légales de 1925 permettent de détecter la plupart des poisons connus,
 rendant l'empoisonnement un crime risqué pour le meurtrier.
-      `
+      `,
     },
     {
-      id: 'flacon-medicament',
-      title: 'Flacon de Médicament Suspect',
-      category: 'Indice Matériel',
-      relatedTerms: ['flacon', 'fiole', 'bouteille', 'médicament', 'pharmacie', 'apothicaire', 'comprimé'],
+      id: "flacon-medicament",
+      title: "Flacon de Médicament Suspect",
+      category: "Indice Matériel",
+      relatedTerms: [
+        "flacon",
+        "fiole",
+        "bouteille",
+        "médicament",
+        "pharmacie",
+        "apothicaire",
+        "comprimé",
+      ],
       content: `
 # Flacon de Médicament Retrouvé
 
@@ -207,13 +255,22 @@ La digitoxine entre dans cette catégorie.
 ---
 
 **Action recommandée** : Interroger l'apothicaire et les domestiques ayant accès à l'office.
-      `
+      `,
     },
     {
-      id: 'digitale-jardin',
-      title: 'Plants de Digitale dans le Jardin',
-      category: 'Indice Botanique',
-      relatedTerms: ['digitale', 'jardin', 'fleur', 'plante', 'pourpre', 'foxglove', 'végétal', 'toxique'],
+      id: "digitale-jardin",
+      title: "Plants de Digitale dans le Jardin",
+      category: "Indice Botanique",
+      relatedTerms: [
+        "digitale",
+        "jardin",
+        "fleur",
+        "plante",
+        "pourpre",
+        "foxglove",
+        "végétal",
+        "toxique",
+      ],
       content: `
 # Digitale Pourpre (Digitalis purpurea) - Jardin d'Ashford
 
@@ -278,13 +335,21 @@ Si Lord Ashford a été empoisonné à la digitoxine, ces plants constituent :
 1. Interroger le jardinier sur les coupes récentes
 2. Vérifier si quelqu'un a été vu près des plants
 3. Chercher des traces de feuilles séchées ou broyées
-      `
+      `,
     },
     {
-      id: 'registre-pharmacie',
-      title: 'Registre de la Pharmacie Thorne',
-      category: 'Document',
-      relatedTerms: ['registre', 'pharmacie', 'thorne', 'achat', 'prescription', 'apothicaire', 'commande'],
+      id: "registre-pharmacie",
+      title: "Registre de la Pharmacie Thorne",
+      category: "Document",
+      relatedTerms: [
+        "registre",
+        "pharmacie",
+        "thorne",
+        "achat",
+        "prescription",
+        "apothicaire",
+        "commande",
+      ],
       content: `
 # Registre des Ventes - Pharmacie Thorne & Sons
 
@@ -369,8 +434,8 @@ L'apothicaire déclare :
 
 **INDICE MAJEUR** : Ce registre prouve l'achat récent de la substance mortelle.
 Identifier le client du 25 octobre = Identifier le meurtrier (ou complice).
-      `
-    }
+      `,
+    },
   ];
 
   const handleSearch = () => {
@@ -381,18 +446,53 @@ Identifier le client du 25 octobre = Identifier le meurtrier (ou complice).
     }
 
     const query = searchQuery.toLowerCase().trim();
-    const results = articles.filter(article => {
-      return article.relatedTerms.some(term =>
-        term.toLowerCase().includes(query) || query.includes(term.toLowerCase())
-      ) || article.title.toLowerCase().includes(query);
-    });
 
-    setSearchResults(results);
+    // Recherche dans les personnages
+    let characterResults: SearchResult[];
+
+    // Si on recherche "personnages" ou "suspects", afficher tous les personnages
+    if (query === "personnages" || query === "suspects") {
+      characterResults = allCharacters.map((character) => ({
+        type: "character" as const,
+        data: character,
+      }));
+    } else {
+      // Sinon, filtrer par prénom, nom de famille, nom complet, titre ou occupation
+      characterResults = allCharacters
+        .filter((character) => {
+          return (
+            character.firstName.toLowerCase().includes(query) ||
+            character.lastName.toLowerCase().includes(query) ||
+            character.name.toLowerCase().includes(query) ||
+            character.title.toLowerCase().includes(query) ||
+            character.occupation.toLowerCase().includes(query) ||
+            character.category.toLowerCase().includes(query)
+          );
+        })
+        .map((character) => ({ type: "character" as const, data: character }));
+    }
+
+    // Recherche dans les articles
+    const articleResults: SearchResult[] = articles
+      .filter((article) => {
+        return (
+          article.relatedTerms.some(
+            (term) =>
+              term.toLowerCase().includes(query) ||
+              query.includes(term.toLowerCase())
+          ) || article.title.toLowerCase().includes(query)
+        );
+      })
+      .map((article) => ({ type: "article" as const, data: article }));
+
+    // Combiner les résultats
+    const allResults = [...characterResults, ...articleResults];
+    setSearchResults(allResults);
     setHasSearched(true);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
   };
@@ -401,10 +501,13 @@ Identifier le client du 25 octobre = Identifier le meurtrier (ou complice).
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#0a0e0d] via-[#1a2420] to-[#0f1512]">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.1) 1px, transparent 1px)`,
-          backgroundSize: '30px 30px'
-        }}></div>
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.1) 1px, transparent 1px)`,
+            backgroundSize: "30px 30px",
+          }}
+        ></div>
       </div>
 
       {/* Ornamental Corners */}
@@ -414,138 +517,241 @@ Identifier le client du 25 octobre = Identifier le meurtrier (ou complice).
       <div className="relative z-10 min-h-screen px-4 py-12">
         <div className="max-w-5xl mx-auto">
           {/* Header - Search Engine Style */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-8">
             <h1 className="font-playfair text-6xl font-bold text-accent-gold mb-2 tracking-wide drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]">
               ASHFORD ARCHIVES
             </h1>
-            <p className="font-inter text-text-muted text-sm tracking-widest mb-12">MOTEUR DE RECHERCHE • MANOIR ASHFORD 1925</p>
+            <p className="font-inter text-text-muted text-sm tracking-widest mb-8">
+              MOTEUR DE RECHERCHE • MANOIR ASHFORD 1925
+            </p>
 
-            {/* Search Bar - Large and Centered */}
-            <div className="max-w-3xl mx-auto mb-8">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Rechercher : poison, digitoxine, médicament, flacon..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="w-full bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-gold/40 rounded-full px-8 py-6 pl-16 pr-32 text-text-light font-inter text-lg placeholder-text-muted focus:outline-none focus:border-accent-gold/60 focus:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all backdrop-blur-sm"
-                />
-                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-3xl">🔍</span>
-                <button
-                  onClick={handleSearch}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-accent-gold hover:bg-accent-gold/80 text-primary-dark font-playfair font-semibold px-8 py-3 rounded-full transition-all shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_30px_rgba(212,175,55,0.6)]"
-                >
-                  Rechercher
-                </button>
-              </div>
+            {/* Tabs */}
+            <div className="flex justify-center gap-4 mb-12">
+              <button
+                onClick={() => setActiveTab("search")}
+                className={`px-8 py-3 rounded-lg font-inter font-semibold transition-all ${
+                  activeTab === "search"
+                    ? "bg-accent-gold text-primary-dark shadow-[0_0_20px_rgba(212,175,55,0.5)]"
+                    : "bg-accent-gold/10 text-accent-gold border-2 border-accent-gold/30 hover:bg-accent-gold/20"
+                }`}
+              >
+                🔍 Recherche
+              </button>
+              <button
+                onClick={() => setActiveTab("relationships")}
+                className={`px-8 py-3 rounded-lg font-inter font-semibold transition-all ${
+                  activeTab === "relationships"
+                    ? "bg-accent-gold text-primary-dark shadow-[0_0_20px_rgba(212,175,55,0.5)]"
+                    : "bg-accent-gold/10 text-accent-gold border-2 border-accent-gold/30 hover:bg-accent-gold/20"
+                }`}
+              >
+                👥 Relations
+              </button>
             </div>
 
-            {/* Quick Suggestions */}
-            {!hasSearched && (
-              <div className="flex flex-wrap justify-center gap-3">
-                <span className="font-inter text-text-muted text-sm">Suggestions :</span>
-                {['digitoxine', 'poison', 'flacon', 'médicament', 'pharmacie'].map(term => (
-                  <button
-                    key={term}
-                    onClick={() => {
-                      setSearchQuery(term);
-                      setTimeout(() => {
-                        const results = articles.filter(article =>
-                          article.relatedTerms.some(t => t.toLowerCase().includes(term.toLowerCase()))
-                        );
-                        setSearchResults(results);
-                        setHasSearched(true);
-                      }, 100);
-                    }}
-                    className="px-4 py-2 bg-accent-gold/10 border border-accent-gold/30 rounded-full text-accent-gold text-sm font-inter hover:bg-accent-gold/20 hover:border-accent-gold/50 transition-all"
-                  >
-                    {term}
-                  </button>
-                ))}
-              </div>
+            {/* Search Bar - Large and Centered */}
+            {activeTab === "search" && (
+              <>
+                <div className="max-w-3xl mx-auto mb-8">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Rechercher : Margaret, Ashford, domestiques, suspects, poison..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      className="w-full bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-gold/40 rounded-full px-8 py-6 pl-16 pr-32 text-text-light font-inter text-lg placeholder-text-muted focus:outline-none focus:border-accent-gold/60 focus:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all backdrop-blur-sm"
+                    />
+                    <span className="absolute left-6 top-1/2 -translate-y-1/2 text-3xl">
+                      🔍
+                    </span>
+                    <button
+                      onClick={handleSearch}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-accent-gold hover:bg-accent-gold/80 text-primary-dark font-playfair font-semibold px-8 py-3 rounded-full transition-all shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_30px_rgba(212,175,55,0.6)]"
+                    >
+                      Rechercher
+                    </button>
+                  </div>
+                </div>
+
+                {/* Quick Suggestions */}
+                {!hasSearched && (
+                  <div className="flex flex-wrap justify-center gap-3">
+                    <span className="font-inter text-text-muted text-sm">
+                      Suggestions :
+                    </span>
+                    {[
+                      "personnages",
+                      "suspects",
+                      "domestiques",
+                      "Ashford",
+                      "Pemberton",
+                      "Margaret",
+                    ].map((term) => (
+                      <button
+                        key={term}
+                        onClick={() => {
+                          setSearchQuery(term);
+                          setTimeout(() => {
+                            handleSearch();
+                          }, 100);
+                        }}
+                        className="px-4 py-2 bg-accent-gold/10 border border-accent-gold/30 rounded-full text-accent-gold text-sm font-inter hover:bg-accent-gold/20 hover:border-accent-gold/50 transition-all"
+                      >
+                        {term}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
 
+          {/* Relationship Tree Tab */}
+          {activeTab === "relationships" && <RelationshipTree />}
+
           {/* Search Results */}
-          {hasSearched && (
+          {activeTab === "search" && hasSearched && (
             <div>
               {/* Results Count */}
               <div className="mb-6 font-inter text-text-muted">
                 {searchResults.length > 0
-                  ? `${searchResults.length} résultat${searchResults.length > 1 ? 's' : ''} trouvé${searchResults.length > 1 ? 's' : ''}`
-                  : 'Aucun résultat trouvé'}
+                  ? `${searchResults.length} résultat${
+                      searchResults.length > 1 ? "s" : ""
+                    } trouvé${searchResults.length > 1 ? "s" : ""}`
+                  : "Aucun résultat trouvé"}
               </div>
 
               {/* Results List */}
               {searchResults.length > 0 ? (
                 <div className="space-y-6">
-                  {searchResults.map((article) => (
-                    <div
-                      key={article.id}
-                      className="bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-gold/40 rounded-lg p-8 shadow-[0_0_40px_rgba(212,175,55,0.2)] backdrop-blur-sm hover:shadow-[0_0_60px_rgba(212,175,55,0.3)] hover:border-accent-gold/60 transition-all duration-300"
-                    >
-                      {/* Article Header */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="text-3xl">📄</span>
-                            <h2 className="font-playfair text-3xl font-bold text-accent-gold">
-                              {article.title}
-                            </h2>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span className="font-inter text-text-muted px-3 py-1 bg-accent-gold/10 rounded-full border border-accent-gold/30">
-                              {article.category}
-                            </span>
-                            {article.discoveredAt && (
-                              <span className="font-inter text-text-muted flex items-center gap-1">
-                                📍 {article.discoveredAt}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Article Content */}
-                      <div className="prose prose-invert max-w-none">
+                  {searchResults.map((result, index) => {
+                    if (result.type === "character") {
+                      const character = result.data as Character;
+                      return (
                         <div
-                          className="font-inter text-text-gray leading-relaxed whitespace-pre-line"
-                          style={{
-                            fontSize: '0.95rem',
-                            lineHeight: '1.7'
-                          }}
+                          key={`character-${index}`}
+                          className="bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-gold/40 rounded-lg p-8 shadow-[0_0_40px_rgba(212,175,55,0.2)] backdrop-blur-sm hover:shadow-[0_0_60px_rgba(212,175,55,0.3)] hover:border-accent-gold/60 transition-all duration-300"
                         >
-                          {article.content}
-                        </div>
-                      </div>
+                          {/* Character Header */}
+                          <div className="flex items-start justify-between mb-6">
+                            <div>
+                              <div className="flex items-center gap-3 mb-2">
+                                <span className="text-3xl">👤</span>
+                                <h2 className="font-playfair text-3xl font-bold text-accent-gold">
+                                  {character.name}
+                                </h2>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm mb-3">
+                                <span className="font-inter text-accent-gold px-3 py-1 bg-accent-gold/10 rounded-full border border-accent-gold/30">
+                                  {character.title}
+                                </span>
+                                <span className="font-inter text-text-muted">
+                                  {character.occupation}
+                                </span>
+                                <span className="font-inter text-text-muted">
+                                  {character.age} ans
+                                </span>
+                              </div>
+                            </div>
+                          </div>
 
-                      {/* Article Footer */}
-                      <div className="mt-6 pt-4 border-t border-accent-gold/30 flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-sm text-text-muted font-inter">
-                          <span>🏷️ Mots-clés :</span>
-                          <span>{article.relatedTerms.slice(0, 5).join(', ')}</span>
+                          {/* Character Content */}
+                          <div className="space-y-4">
+                            <div>
+                              <h3 className="font-playfair text-xl text-accent-gold mb-2">
+                                Description
+                              </h3>
+                              <p className="font-inter text-text-gray leading-relaxed">
+                                {character.description}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Character Footer */}
+                          <div className="mt-6 pt-4 border-t border-accent-gold/30 flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm text-text-muted font-inter">
+                              <span>🎭 {character.category}</span>
+                            </div>
+                          </div>
                         </div>
-                        <button className="font-inter text-sm text-accent-gold hover:text-accent-gold/80 transition-colors flex items-center gap-2">
-                          <span>📋</span>
-                          Ajouter aux notes
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    } else {
+                      const article = result.data as Article;
+                      return (
+                        <div
+                          key={`article-${article.id}`}
+                          className="bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-gold/40 rounded-lg p-8 shadow-[0_0_40px_rgba(212,175,55,0.2)] backdrop-blur-sm hover:shadow-[0_0_60px_rgba(212,175,55,0.3)] hover:border-accent-gold/60 transition-all duration-300"
+                        >
+                          {/* Article Header */}
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <div className="flex items-center gap-3 mb-2">
+                                <span className="text-3xl">📄</span>
+                                <h2 className="font-playfair text-3xl font-bold text-accent-gold">
+                                  {article.title}
+                                </h2>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm">
+                                <span className="font-inter text-text-muted px-3 py-1 bg-accent-gold/10 rounded-full border border-accent-gold/30">
+                                  {article.category}
+                                </span>
+                                {article.discoveredAt && (
+                                  <span className="font-inter text-text-muted flex items-center gap-1">
+                                    📍 {article.discoveredAt}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Article Content */}
+                          <div className="prose prose-invert max-w-none">
+                            <div
+                              className="font-inter text-text-gray leading-relaxed whitespace-pre-line"
+                              style={{
+                                fontSize: "0.95rem",
+                                lineHeight: "1.7",
+                              }}
+                            >
+                              {article.content}
+                            </div>
+                          </div>
+
+                          {/* Article Footer */}
+                          <div className="mt-6 pt-4 border-t border-accent-gold/30 flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm text-text-muted font-inter">
+                              <span>🏷️ Mots-clés :</span>
+                              <span>
+                                {article.relatedTerms.slice(0, 5).join(", ")}
+                              </span>
+                            </div>
+                            <button className="font-inter text-sm text-accent-gold hover:text-accent-gold/80 transition-colors flex items-center gap-2">
+                              <span>📋</span>
+                              Ajouter aux notes
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    }
+                  })}
                 </div>
               ) : (
                 // No Results
                 <div className="bg-gradient-to-br from-[#1a2420]/80 to-[#0f1512]/90 border-2 border-accent-gold/40 rounded-lg p-16 text-center shadow-[0_0_40px_rgba(212,175,55,0.2)] backdrop-blur-sm">
                   <span className="text-8xl mb-6 block opacity-50">🔎</span>
-                  <h3 className="font-playfair text-2xl font-bold text-text-light mb-3">Aucun résultat trouvé</h3>
+                  <h3 className="font-playfair text-2xl font-bold text-text-light mb-3">
+                    Aucun résultat trouvé
+                  </h3>
                   <p className="font-inter text-text-muted mb-6">
-                    Essayez avec des mots-clés différents comme :<br/>
-                    <span className="text-accent-gold">poison, digitoxine, médicament, flacon, pharmacie</span>
+                    Essayez avec des mots-clés différents comme :<br />
+                    <span className="text-accent-gold">
+                      personnages, Margaret, Ashford, domestiques, suspects,
+                    </span>
                   </p>
                   <button
                     onClick={() => {
-                      setSearchQuery('');
+                      setSearchQuery("");
                       setHasSearched(false);
                     }}
                     className="font-inter text-sm text-accent-gold hover:text-accent-gold/80 transition-colors"
@@ -560,7 +766,7 @@ Identifier le client du 25 octobre = Identifier le meurtrier (ou complice).
           {/* Back Button */}
           <div className="text-center mt-12">
             <button
-              onClick={() => router.push('/game')}
+              onClick={() => router.push("/game")}
               className="font-inter text-text-muted text-sm hover:text-accent-gold transition-colors flex items-center gap-2 mx-auto"
             >
               <span>←</span>

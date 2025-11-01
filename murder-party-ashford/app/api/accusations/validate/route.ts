@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { userRepository } from '@/lib/db/user';
 import { getCurrentUser } from '@/lib/auth';
 
-// Définition des bonnes réponses (à modifier selon votre scénario)
+// Définition des bonnes réponses - SOLUTION CORRECTE DU MEURTRE AU MANOIR ASHFORD
 const CORRECT_ANSWERS = {
-  murderer: 'thomas',        // ID du vrai meurtrier
-  accomplices: ['sebastian'], // IDs des vrais complices
-  motive: 'heritage',        // ID du vrai mobile
-  causeOfDeath: 'poison',    // ID de la vraie cause
-  weapon: 'arsenic',         // ID de la vraie arme
+  murderer: 'margaret-walsh',              // Margaret Walsh, la cuisinière - L'assassin principal
+  accomplices: ['thomas-ashford', 'albert-whitmore'], // Thomas Ashford et Albert Whitmore - Les complices
+  motive: 'vengeance',                     // Le mobile : Vengeance
+  causeOfDeath: 'poison',                  // Empoisonnement
+  weapon: 'digitoxine',                    // Le poison : Digitoxine
 };
 
 // Système de points
